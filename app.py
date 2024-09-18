@@ -61,7 +61,7 @@ Prediction_model = load_sklearn_models("best_model_mlp")
 #Building the website
 
 #title of the web page
-st.title("Celebrity Potrait Classification")
+st.title("Portrait Classification Webapp")
 
 #setting the main picture
 #st.image( "https://mediniz-images-2018-100.s3.ap-south-1.amazonaws.com/post-images/chokhm_1663869443.png",caption = "ABC")
@@ -71,7 +71,7 @@ st.header("About the Web App")
 
 #details about the project
 with st.expander("Web App 🌐"):
-    st.write("This web app is about predicting celebrity name as per the sketch provided")
+    st.write("This web app predicts the name of the celebrity based on the sketch provided")
 
 
 
