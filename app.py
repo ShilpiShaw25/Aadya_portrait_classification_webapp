@@ -20,7 +20,7 @@ PREDICTION_LABELS.sort()
 
 # functions
 @st.cache_resource
-def get_convext_model():
+def get_mobilenetV2_model():
 
     # Download the model, valid alpha values [0.25,0.35,0.5,0.75,1]
     base_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), include_top=False, weights='imagenet')
@@ -52,9 +52,9 @@ def featurization(image_path, model):
     return predictions
 
 # get the featurization model
-convext_featurized_model = get_convext_model()
+featurized_model = get_mobilenetV2_model()
 # load Cataract model
-Cataract_model = load_sklearn_models("best_model_mlp")
+Prediction_model = load_sklearn_models("best_model_mlp")
 
 
 
@@ -95,9 +95,9 @@ if image:
 
         #get the features
         with st.spinner("Processing......."):
-          image_features = featurization(IMAGE_NAME, convext_featurized_model)
-          model_predict = Cataract_model.predict(image_features)
-          model_predict_proba = Cataract_model.predict_proba(image_features)
+          image_features = featurization(IMAGE_NAME, featurized_model)
+          model_predict = Prediction_model.predict(image_features)
+          model_predict_proba = Prediction_model.predict_proba(image_features)
           probability = model_predict_proba[0][model_predict[0]]
           col1, col2 = st.columns(2)
 
