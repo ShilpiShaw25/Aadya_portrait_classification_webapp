@@ -99,14 +99,14 @@ if image:
           model_predict = Prediction_model.predict(image_features)
           model_predict_proba = Prediction_model.predict_proba(image_features)
           probability = model_predict_proba[0][model_predict[0]]
-          col1, col2 = st.columns(2)
+        col1, col2 = st.columns(2)
 
-          with col1:
-              st.header("Celebrity Name")
-              st.subheader("{}".format(PREDICTION_LABELS[model_predict[0]]))
-          with col2:
-              st.header("Prediction Probability")
-              st.subheader("{}".format(probability))
+        with col1:
+            st.header("Celebrity Name")
+            st.subheader("{}".format(PREDICTION_LABELS[model_predict[0]]))
+        with col2:
+            st.header("Prediction Probability")
+            st.subheader("{}".format(probability))
 
 
 
