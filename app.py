@@ -1,4 +1,3 @@
-
 import streamlit as st
 import tensorflow as tf
 import numpy as np
@@ -17,10 +16,13 @@ PREDICTION_LABELS = [
     "Tom Holland","James Bond","Taylor Swift","Emma Watson","Scarlett Johanson" ]
 PREDICTION_LABELS.sort()
 
+PREDICTION_RATINGS=['1','2','3','4','5']
+PREDICTION_RATINGS.sort()
+
 
 # functions
 @st.cache_resource
-def get_mobilenetV2_model():
+def get_convext_model():
 
     # Download the model, valid alpha values [0.25,0.35,0.5,0.75,1]
     base_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), include_top=False, weights='imagenet')
@@ -52,16 +54,19 @@ def featurization(image_path, model):
     return predictions
 
 # get the featurization model
-featurized_model = get_mobilenetV2_model()
-# load Cataract model
-Prediction_model = load_sklearn_models("best_model_mlp")
+featurized_model = get_convext_model()
+# load Portrait model
+Portrait_model = load_sklearn_models("best_model_mlp")
+
+# load Rating model
+Rating_model = load_sklearn_models("part2BM")
 
 
 
 #Building the website
 
 #title of the web page
-st.title("Portrait Classification Webapp")
+st.title("Celebrity Potrait Classification")
 
 #setting the main picture
 #st.image( "https://mediniz-images-2018-100.s3.ap-south-1.amazonaws.com/post-images/chokhm_1663869443.png",caption = "ABC")
@@ -71,7 +76,7 @@ st.header("About the Web App")
 
 #details about the project
 with st.expander("Web App 🌐"):
-    st.write("This web app predicts the name of the celebrity based on the sketch provided")
+    st.write("This web app is about predicting celebrity name as per the sketch provided")
 
 
 
@@ -96,17 +101,35 @@ if image:
         #get the features
         with st.spinner("Processing......."):
           image_features = featurization(IMAGE_NAME, featurized_model)
-          model_predict = Prediction_model.predict(image_features)
-          model_predict_proba = Prediction_model.predict_proba(image_features)
+          model_predict = Portrait_model.predict(image_features)
+          model_predict_proba = Portrait_model.predict_proba(image_features)
           probability = model_predict_proba[0][model_predict[0]]
         col1, col2 = st.columns(2)
 
         with col1:
-            st.header("Celebrity Name")
-            st.subheader("{}".format(PREDICTION_LABELS[model_predict[0]]))
+          st.header("Celebrity Name")
+          st.subheader("{}".format(PREDICTION_LABELS[model_predict[0]]))
         with col2:
-            st.header("Prediction Probability")
-            st.subheader("{}".format(probability))
+          st.header("Prediction Probability")
+          st.subheader("{}".format(probability))
+
+          #getting prediction from rating model
+          rating_model_predict = Rating_model.predict(image_features)
+          rating_model_predict_proba = Rating_model.predict_proba(image_features)
+          rating_probability = rating_model_predict_proba[0][rating_model_predict[0]]
+        col3, col4 = st.columns(2)
+
+        with col3:
+          st.header("rating")
+          st.subheader("{}".format(PREDICTION_RATINGS[int(rating_model_predict[0])]))
+          rating_probability = rating_model_predict_proba[0][int(rating_model_predict[0])]
+          
+        with col4:
+          st.header("Prediction Probability")
+          st.subheader("{}".format(rating_probability))
+          
+
+
 
 
 
