@@ -1,3 +1,4 @@
+
 import streamlit as st
 import tensorflow as tf
 import numpy as np
@@ -66,7 +67,7 @@ Rating_model = load_sklearn_models("part2BM")
 #Building the website
 
 #title of the web page
-st.title("Celebrity Potrait Classification")
+st.title("Celebrity Portrait Classification")
 
 #setting the main picture
 #st.image( "https://mediniz-images-2018-100.s3.ap-south-1.amazonaws.com/post-images/chokhm_1663869443.png",caption = "ABC")
@@ -76,57 +77,57 @@ st.header("About the Web App")
 
 #details about the project
 with st.expander("Web App 🌐"):
-    st.write("This web app is about predicting celebrity name as per the sketch provided")
+    st.write("This web app is about predicting celebrity name and give rating to the sketch")
 
 
 
 #setting file uploader
+
 #you can change the label name as your preference
-image = st.file_uploader(label="Upload an image",accept_multiple_files=False, help="Upload an image to classify them")
+# File uploader
+image = st.file_uploader("Uplaod a pencil sketch file ", type=['jpg','jpeg','png'])
+
 if image:
-  #validating the image type
-  image_type = image.type.split("/")[-1]
-  if image_type not in ['jpg','jpeg','png','jfif']:
-      st.error("Invalid file type : {}".format(image.type), icon="🚨")
-  else:
-      #displaying the image
-      st.image(image, caption = "User Uploaded Image")
+  
+  #displaying the image
+  st.image(image, caption = "User Uploaded Image")
+  user_image = Image.open(image)
+  # save the image to set the path
+  user_image.save(IMAGE_NAME)
 
+  #get the features
+  with st.spinner("Processing......."):
+    image_features = featurization(IMAGE_NAME, featurized_model)
+    model_predict = Portrait_model.predict(image_features)
+    model_predict_proba = Portrait_model.predict_proba(image_features)
+    probability = model_predict_proba[0][model_predict[0]]
+  col1, col2 = st.columns(2)
 
-      if image:
-        user_image = Image.open(image)
-        # save the image to set the path
-        user_image.save(IMAGE_NAME)
+  with col1:
+    st.header("Celebrity Name")
+    st.subheader("{}".format(PREDICTION_LABELS[model_predict[0]]))
+  with col2:
+    st.header("Prediction Probability")
+    st.subheader("{}".format(probability))
 
-        #get the features
-        with st.spinner("Processing......."):
-          image_features = featurization(IMAGE_NAME, featurized_model)
-          model_predict = Portrait_model.predict(image_features)
-          model_predict_proba = Portrait_model.predict_proba(image_features)
-          probability = model_predict_proba[0][model_predict[0]]
-        col1, col2 = st.columns(2)
+    #getting prediction from rating model
+    rating_model_predict = Rating_model.predict(image_features)
+    rating_model_predict_proba = Rating_model.predict_proba(image_features)
+    rating_probability = rating_model_predict_proba[0][int(rating_model_predict[0])]
 
-        with col1:
-          st.header("Celebrity Name")
-          st.subheader("{}".format(PREDICTION_LABELS[model_predict[0]]))
-        with col2:
-          st.header("Prediction Probability")
-          st.subheader("{}".format(probability))
+  col3, col4 = st.columns(2)
 
-          #getting prediction from rating model
-          rating_model_predict = Rating_model.predict(image_features)
-          rating_model_predict_proba = Rating_model.predict_proba(image_features)
-          rating_probability = rating_model_predict_proba[0][int(rating_model_predict[0])]
-        col3, col4 = st.columns(2)
-
-        with col3:
-          st.header("rating")
-          st.subheader("{}".format(PREDICTION_RATINGS[int(rating_model_predict[0])]))
+  with col3:
+    st.header("Rating")
+    st.subheader("{}".format(PREDICTION_RATINGS[int(rating_model_predict[0])]))
           
-        with col4:
-          st.header("Prediction Probability")
-          st.subheader("{}".format(rating_probability))
+  with col4:
+    st.header("Prediction Probability")
+    st.subheader("{}".format(rating_probability))
           
+
+
+
 
 
 
