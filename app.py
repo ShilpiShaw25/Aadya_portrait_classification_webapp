@@ -116,7 +116,7 @@ if image:
           #getting prediction from rating model
           rating_model_predict = Rating_model.predict(image_features)
           rating_model_predict_proba = Rating_model.predict_proba(image_features)
-          rating_probability = rating_model_predict_proba[0][rating_model_predict[0]]
+          rating_probability = rating_model_predict_proba[0][int(rating_model_predict[0])]
         col3, col4 = st.columns(2)
 
         with col3:
