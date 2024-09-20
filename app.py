@@ -16,7 +16,7 @@ PREDICTION_LABELS = [
     "Tom Holland","James Bond","Taylor Swift","Emma Watson","Scarlett Johanson" ]
 PREDICTION_LABELS.sort()
 
-PREDICTION_RATINGS=['0.','1.','2.','3.','4.','5.']
+PREDICTION_RATINGS=[0,1,2,3,4,5]
 PREDICTION_RATINGS.sort()
 
 
@@ -122,7 +122,6 @@ if image:
         with col3:
           st.header("rating")
           st.subheader("{}".format(PREDICTION_RATINGS[int(rating_model_predict[0])]))
-          rating_probability = rating_model_predict_proba[0][int(rating_model_predict[0])]
           
         with col4:
           st.header("Prediction Probability")
