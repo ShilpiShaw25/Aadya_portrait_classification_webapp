@@ -17,8 +17,8 @@ PREDICTION_LABELS = [
     "Tom Holland","James Bond","Taylor Swift","Emma Watson","Scarlett Johanson" ]
 PREDICTION_LABELS.sort()
 
-PREDICTION_RATINGS=[0,1,2,3,4,5]
-PREDICTION_RATINGS.sort()
+PREDICTION_RATINGS=[1.0,2.0,3.0,4.0,5.0,]
+#PREDICTION_RATINGS.sort()
 
 
 # functions
