@@ -1,3 +1,4 @@
+%%writefile app.py
 
 import streamlit as st
 import tensorflow as tf
@@ -18,12 +19,27 @@ PREDICTION_LABELS = [
 PREDICTION_LABELS.sort()
 
 PREDICTION_RATINGS=[1.0,2.0,3.0,4.0,5.0,]
-#PREDICTION_RATINGS.sort()
+PREDICTION_RATINGS.sort()
 
+
+# functions
 
 # functions
 @st.cache_resource
 def get_convext_model():
+
+    # Download the model, valid alpha values [0.25,0.35,0.5,0.75,1]
+    base_model = tf.keras.applications.ConvNeXtLarge(input_shape=(224, 224, 3), include_top=False, weights='imagenet')
+    # Add average pooling to the base
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+    model_frozen = Model(inputs=base_model.input,outputs=x)
+
+    return model_frozen
+
+
+@st.cache_resource
+def get_mobilenetv2_model():
 
     # Download the model, valid alpha values [0.25,0.35,0.5,0.75,1]
     base_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), include_top=False, weights='imagenet')
@@ -55,12 +71,16 @@ def featurization(image_path, model):
     return predictions
 
 # get the featurization model
-featurized_model = get_convext_model()
+portrait_featurized_model = get_mobilenetv2_model()
+rating_featurized_model = get_convext_model()
+
+
+
 # load Portrait model
 Portrait_model = load_sklearn_models("best_model_mlp")
 
 # load Rating model
-Rating_model = load_sklearn_models("part2BM")
+Rating_model = load_sklearn_models("best_model-classification_rf_20_1_part2")
 
 
 
@@ -88,7 +108,7 @@ with st.expander("Web App 🌐"):
 image = st.file_uploader("Uplaod a pencil sketch file ", type=['jpg','jpeg','png'])
 
 if image:
-  
+
   #displaying the image
   st.image(image, caption = "User Uploaded Image")
   user_image = Image.open(image)
@@ -97,38 +117,30 @@ if image:
 
   #get the features
   with st.spinner("Processing......."):
-    image_features = featurization(IMAGE_NAME, featurized_model)
+    image_features = featurization(IMAGE_NAME, portrait_featurized_model)
+    rating_image_features = featurization(IMAGE_NAME, rating_featurized_model)
+
+    #getting prediction from portrait model
     model_predict = Portrait_model.predict(image_features)
     model_predict_proba = Portrait_model.predict_proba(image_features)
     probability = model_predict_proba[0][model_predict[0]]
+
+
+    #getting prediction from rating model
+    rating_model_predict = Rating_model.predict(rating_image_features)
+
+    rating_model_predict_proba = Rating_model.predict_proba(rating_image_features)
+    rating = PREDICTION_RATINGS[int(rating_model_predict)]
+    rating_probability = rating_model_predict_proba[0][int(rating_model_predict[0])] 
+
   col1, col2 = st.columns(2)
 
   with col1:
     st.header("Celebrity Name")
-    st.subheader("{}".format(PREDICTION_LABELS[model_predict[0]]))
+    st.header("{}".format(PREDICTION_LABELS[model_predict[0]]))
   with col2:
-    st.header("Prediction Probability")
-    st.subheader("{}".format(probability))
-
-    #getting prediction from rating model
-    rating_model_predict = Rating_model.predict(image_features)
-    rating_model_predict_proba = Rating_model.predict_proba(image_features)
-    rating_probability = rating_model_predict_proba[0][int(rating_model_predict[0])]
-
-  col3, col4 = st.columns(2)
-
-  with col3:
     st.header("Rating")
-    st.subheader("{}".format(PREDICTION_RATINGS[int(rating_model_predict[0])]))
-          
-  with col4:
-    st.header("Prediction Probability")
-    st.subheader("{}".format(rating_probability))
-          
-
-
-
-
+    st.header("{}".format(PREDICTION_RATINGS[int(rating_model_predict[0])]))
 
 
 
